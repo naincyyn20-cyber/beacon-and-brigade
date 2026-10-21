@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<!--
+  Code Fusion — Search and Rescue Operations Coordination System
+  CSE326 Internet Programming — classroom simulation (fictional data only).
+  Files: index.html (structure), style.css (look), script.js (behaviour).
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Code Fusion — SAR Coordination System</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ===== SIDEBAR NAVIGATION ===== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">CF</div>
+      <div>
+        <h1>Code Fusion</h1>
+        <p>SAR Coordination</p>
+      </div>
+    </div>
+    <nav>
+      <button class="nav-link active" data-section="dashboard">📊 Dashboard</button>
+      <button class="nav-link" data-section="incidents">🚨 Incidents</button>
+      <button class="nav-link" data-section="zones">🗺️ Search Zones</button>
+      <button class="nav-link" data-section="teams">👥 Rescue Teams</button>
+      <button class="nav-link" data-section="findings">📝 Findings</button>
+      <button class="nav-link" data-section="resources">📦 Resources</button>
+      <button class="nav-link" data-section="operations">🛰️ Operations</button>
+    </nav>
+    <button id="resetBtn" class="btn btn-danger reset-btn">↺ Reset Demo Data</button>
+    <p class="disclaimer">Classroom simulation. Fictional data only.</p>
+  </aside>
+
+  <main class="content">
+    <!-- ===== 1. DASHBOARD ===== -->
+    <section id="dashboard" class="section active">
+      <h2>Dashboard</h2>
+      <div class="stats">
+        <div class="stat"><span id="statTotal">0</span><label>Total Incidents</label></div>
+        <div class="stat red"><span id="statActive">0</span><label>Active Incidents</label></div>
+        <div class="stat green"><span id="statTeams">0</span><label>Available Teams</label></div>
+        <div class="stat blue"><span id="statZones">0</span><label>Search Zones</label></div>
+        <div class="stat amber"><span id="statRequests">0</span><label>Pending Requests</label></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Recent Activity</h3>
+          <ul id="activityList" class="activity"></ul>
+        </div>
+        <div class="card">
+          <h3>Current Operation Status</h3>
+          <table><thead><tr><th>Incident</th><th>Severity</th><th>Status</th></tr></thead>
+            <tbody id="dashIncidents"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 2. INCIDENTS ===== -->
+    <section id="incidents" class="section">
+      <h2>Incident Management</h2>
+      <form id="incidentForm" class="card form" novalidate>
+        <h3 id="incidentFormTitle">Add New Incident</h3>
+        <input type="hidden" id="incidentId" />
+        <div class="form-grid">
+          <label>Title<input id="incTitle" required /></label>
+          <label>Location<input id="incLocation" required /></label>
+          <label>Type
+            <select id="incType"><option>Flood</option><option>Earthquake</option><option>Missing Person</option><option>Landslide</option><option>Building Collapse</option><option>Wildfire</option></select>
+          </label>
+          <label>Severity
+            <select id="incSeverity"><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select>
+          </label>
+          <label>Date<input type="date" id="incDate" required /></label>
+          <label>Status
+            <select id="incStatus"><option>Active</option><option>Monitoring</option><option>Resolved</option></select>
+          </label>
+        </div>
+        <label>Description<textarea id="incDesc" rows="2" required></textarea></label>
+        <div class="actions">
+          <button type="submit" class="btn btn-primary">Save Incident</button>
+          <button type="button" class="btn" id="incidentCancel">Clear</button>
+        </div>
+      </form>
+      <div class="card">
+        <div class="toolbar">
+          <input id="incSearch" placeholder="Search title or location..." />
+          <select id="incFilterStatus"><option value="">All statuses</option><option>Active</option><option>Monitoring</option><option>Resolved</option></select>
+          <select id="incFilterSeverity"><option value="">All severities</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select>
+        </div>
+        <table><thead><tr><th>Title</th><th>Location</th><th>Type</th><th>Severity</th><th>Date</th><th>Status</th><th></th></tr></thead>
+          <tbody id="incidentTable"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ===== 3. SEARCH ZONES ===== -->
+    <section id="zones" class="section">
+      <h2>Search Zone Management</h2>
+      <form id="zoneForm" class="card form" novalidate>
+        <h3 id="zoneFormTitle">Create Search Zone</h3>
+        <input type="hidden" id="zoneId" />
+        <div class="form-grid">
+          <label>Incident<select id="zoneIncident" required></select></label>
+          <label>Zone Name<input id="zoneName" required /></label>
+          <label>Priority<select id="zonePriority"><option>Low</option><option>Medium</option><option>High</option></select></label>
+          <label>Status<select id="zoneStatus"><option>Pending</option><option>In Progress</option><option>Completed</option></select></label>
+        </div>
+        <label>Description<textarea id="zoneDesc" rows="2" required></textarea></label>
+        <div class="actions">
+          <button type="submit" class="btn btn-primary">Save Zone</button>
+          <button type="button" class="btn" id="zoneCancel">Clear</button>
+        </div>
+      </form>
+      <div class="card">
+        <table><thead><tr><th>Zone</th><th>Incident</th><th>Priority</th><th>Status</th><th>Assigned Team</th><th></th></tr></thead>
+          <tbody id="zoneTable"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ===== 4. TEAMS ===== -->
+    <section id="teams" class="section">
+      <h2>Rescue Team Management</h2>
+      <div class="grid-2">
+        <form id="teamForm" class="card form" novalidate>
+          <h3 id="teamFormTitle">Add Team</h3>
+          <input type="hidden" id="teamId" />
+          <label>Team Name<input id="teamName" required /></label>
+          <label>Team Leader<input id="teamLeader" required /></label>
+          <label>Members<input type="number" id="teamMembers" min="1" required /></label>
+          <label>Specialty<select id="teamSpecialty"><option>Water Rescue</option><option>K9 Search</option><option>Medical</option><option>Urban Search</option><option>Mountain Rescue</option><option>Drone Recon</option></select></label>
+          <label>Availability<select id="teamStatus"><option>Available</option><option>Off Duty</option></select></label>
+          <div class="actions">
+            <button type="submit" class="btn btn-primary">Save Team</button>
+            <button type="button" class="btn" id="teamCancel">Clear</button>
+          </div>
+        </form>
+        <form id="assignForm" class="card form" novalidate>
+          <h3>Assign Team to Zone</h3>
+          <label>Available Team<select id="assignTeam"></select></label>
+          <label>Search Zone (not completed)<select id="assignZone"></select></label>
+          <div class="actions"><button type="submit" class="btn btn-primary">Assign</button></div>
+          <p class="hint">A team can only hold one active assignment at a time.</p>
+        </form>
+      </div>
+      <div class="card">
+        <table><thead><tr><th>Team</th><th>Leader</th><th>Members</th><th>Specialty</th><th>Availability</th><th>Assigned Zone</th><th></th></tr></thead>
+          <tbody id="teamTable"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ===== 5. FINDINGS ===== -->
+    <section id="findings" class="section">
+      <h2>Findings Reports</h2>
+      <form id="findingForm" class="card form" novalidate>
+        <h3>Record Finding</h3>
+        <div class="form-grid">
+          <label>Incident<select id="findIncident" required></select></label>
+          <label>Search Zone<select id="findZone" required></select></label>
+          <label>Finding Type<select id="findType"><option>Survivor Located</option><option>Personal Item</option><option>Hazard</option><option>Structural Damage</option><option>Clue / Trail</option><option>Area Cleared</option></select></label>
+          <label>Reporting Team<select id="findTeam" required></select></label>
+          <label>Time<input type="datetime-local" id="findTime" required /></label>
+        </div>
+        <label>Description<textarea id="findDesc" rows="2" required></textarea></label>
+        <div class="actions"><button type="submit" class="btn btn-primary">Save Finding</button></div>
+      </form>
+      <div class="card">
+        <div class="toolbar"><input id="findSearch" placeholder="Search findings..." /></div>
+        <table><thead><tr><th>Time</th><th>Type</th><th>Incident</th><th>Zone</th><th>Team</th><th>Description</th></tr></thead>
+          <tbody id="findingTable"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ===== 6. RESOURCE REQUESTS ===== -->
+    <section id="resources" class="section">
+      <h2>Resource Requests</h2>
+      <form id="requestForm" class="card form" novalidate>
+        <h3>New Resource Request</h3>
+        <div class="form-grid">
+          <label>Incident<select id="reqIncident" required></select></label>
+          <label>Requesting Team<select id="reqTeam" required></select></label>
+          <label>Resource Type<select id="reqType"><option>Medical Kits</option><option>Boats</option><option>Drones</option><option>Thermal Cameras</option><option>Food &amp; Water</option><option>Generators</option><option>Extra Personnel</option></select></label>
+          <label>Quantity<input type="number" id="reqQty" min="1" required /></label>
+          <label>Priority<select id="reqPriority"><option>Low</option><option>Medium</option><option>High</option></select></label>
+        </div>
+        <label>Reason<textarea id="reqReason" rows="2" required></textarea></label>
+        <div class="actions"><button type="submit" class="btn btn-primary">Submit Request</button></div>
+      </form>
+      <div class="card">
+        <table><thead><tr><th>Resource</th><th>Qty</th><th>Incident</th><th>Team</th><th>Priority</th><th>Reason</th><th>Status</th><th></th></tr></thead>
+          <tbody id="requestTable"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ===== 7. OPERATIONS OVERVIEW ===== -->
+    <section id="operations" class="section">
+      <h2>Operations Dashboard</h2>
+      <div id="opsContainer"></div>
+    </section>
+  </main>
+
+  <!-- Toast notification area -->
+  <div id="toast" class="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
