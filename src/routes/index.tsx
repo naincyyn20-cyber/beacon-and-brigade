@@ -1,24 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+// The actual project is plain HTML/CSS/JS in public/codefusion/.
+// This page just shows it full-screen in the preview.
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Code Fusion — Search and Rescue Coordination" },
+      { name: "description", content: "Coordinate search-and-rescue incidents, zones, teams, findings and resources." },
+      { property: "og:title", content: "Code Fusion — Search and Rescue Coordination" },
+      { property: "og:description", content: "Coordinate search-and-rescue incidents, zones, teams, findings and resources." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <iframe
+      src="/codefusion/index.html"
+      title="Code Fusion SAR System"
+      className="fixed inset-0 h-screen w-screen border-0"
+    />
   );
 }
