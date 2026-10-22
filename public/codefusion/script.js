@@ -113,6 +113,39 @@ function fillSelect(id, items, placeholder) {
   if ([...sel.options].some((o) => o.value === old)) sel.value = old;
 }
 
+// "Other" dropdown support: when the user picks "Other", an extra
+// text box appears so they can type their own incident type or specialty.
+const INCIDENT_TYPES = ["Flood", "Earthquake", "Missing Person", "Landslide", "Building Collapse", "Wildfire"];
+const TEAM_SPECIALTIES = ["Water Rescue", "K9 Search", "Medical", "Urban Search", "Urban Search and Rescue", "Mountain Rescue", "Drone Recon", "Technical Rescue", "Communications Support"];
+function syncIncidentType() {
+  $("incTypeOtherWrap").style.display = $("incType").value === "Other" ? "" : "none";
+}
+function syncTeamSpecialty() {
+  $("teamSpecialtyOtherWrap").style.display = $("teamSpecialty").value === "Other" ? "" : "none";
+}
+// Reads the dropdown; if "Other" is chosen, uses the typed text instead.
+// Returns "" (and shows an error) if "Other" is selected but left empty.
+function resolveOther(selectId, otherId) {
+  if ($(selectId).value !== "Other") return $(selectId).value;
+  const val = $(otherId).value.trim();
+  if (!val) {
+    $(otherId).classList.add("invalid");
+    notify("Please fill in all required fields.", true);
+    return "";
+  }
+  return val;
+}
+// Fills a dropdown when editing: known values go in the dropdown,
+// anything else (a saved custom value) goes into "Other" + the text box.
+function setOtherSelect(selectId, otherId, syncFn, fixedOptions, savedValue) {
+  if (fixedOptions.includes(savedValue)) {
+    $(selectId).value = savedValue; $(otherId).value = "";
+  } else {
+    $(selectId).value = "Other"; $(otherId).value = savedValue;
+  }
+  syncFn();
+}
+
 /* ---------- 4. NAVIGATION ---------- */
 function showSection(name) {
   document.querySelectorAll(".section").forEach((s) => s.classList.toggle("active", s.id === name));
@@ -168,9 +201,11 @@ function renderIncidents() {
 function saveIncident(e) {
   e.preventDefault();
   if (!validate(["incTitle", "incLocation", "incDate", "incDesc"])) return;
+  const type = resolveOther("incType", "incTypeOther");
+  if (!type) return;
   const data = {
     title: $("incTitle").value.trim(), location: $("incLocation").value.trim(),
-    type: $("incType").value, severity: $("incSeverity").value, date: $("incDate").value,
+    type, severity: $("incSeverity").value, date: $("incDate").value,
     status: $("incStatus").value, description: $("incDesc").value.trim()
   };
   const id = $("incidentId").value;
@@ -188,7 +223,8 @@ function saveIncident(e) {
 function editIncident(id) {
   const i = findById(db.incidents, id);
   $("incidentId").value = i.id; $("incTitle").value = i.title; $("incLocation").value = i.location;
-  $("incType").value = i.type; $("incSeverity").value = i.severity; $("incDate").value = i.date;
+  setOtherSelect("incType", "incTypeOther", syncIncidentType, INCIDENT_TYPES, i.type);
+  $("incSeverity").value = i.severity; $("incDate").value = i.date;
   $("incStatus").value = i.status; $("incDesc").value = i.description;
   $("incidentFormTitle").textContent = "Edit Incident";
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -197,6 +233,7 @@ function clearIncidentForm() {
   $("incidentForm").reset(); $("incidentId").value = "";
   $("incidentFormTitle").textContent = "Add New Incident";
   $("incDate").value = new Date().toISOString().slice(0, 10);
+  syncIncidentType();
 }
 
 /* ----- Search Zones ----- */
@@ -288,9 +325,11 @@ function renderTeams() {
 function saveTeam(e) {
   e.preventDefault();
   if (!validate(["teamName", "teamLeader", "teamMembers"])) return;
+  const specialty = resolveOther("teamSpecialty", "teamSpecialtyOther");
+  if (!specialty) return;
   const data = {
     name: $("teamName").value.trim(), leader: $("teamLeader").value.trim(),
-    members: Number($("teamMembers").value), specialty: $("teamSpecialty").value
+    members: Number($("teamMembers").value), specialty
   };
   const chosen = $("teamStatus").value;
   const id = $("teamId").value;
@@ -317,7 +356,8 @@ function saveTeam(e) {
 function editTeam(id) {
   const t = findById(db.teams, id);
   $("teamId").value = t.id; $("teamName").value = t.name; $("teamLeader").value = t.leader;
-  $("teamMembers").value = t.members; $("teamSpecialty").value = t.specialty;
+  $("teamMembers").value = t.members;
+  setOtherSelect("teamSpecialty", "teamSpecialtyOther", syncTeamSpecialty, TEAM_SPECIALTIES, t.specialty);
   $("teamStatus").value = t.status === "Off Duty" ? "Off Duty" : "Available";
   $("teamFormTitle").textContent = "Edit Team";
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -325,6 +365,7 @@ function editTeam(id) {
 function clearTeamForm() {
   $("teamForm").reset(); $("teamId").value = "";
   $("teamFormTitle").textContent = "Add Team";
+  syncTeamSpecialty();
 }
 // Assigns a team to a zone, with conflict checks
 function assignTeam(e) {
@@ -477,6 +518,8 @@ document.addEventListener("DOMContentLoaded", () => {
   $("findingForm").addEventListener("submit", saveFinding);
   $("findIncident").addEventListener("change", updateFindingZones);
   $("findSearch").addEventListener("input", renderFindings);
+  $("incType").addEventListener("change", syncIncidentType);
+  $("teamSpecialty").addEventListener("change", syncTeamSpecialty);
   $("requestForm").addEventListener("submit", saveRequest);
   $("resetBtn").addEventListener("click", resetDemo);
   // Remove red highlight as soon as the user types
