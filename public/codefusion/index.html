@@ -12,8 +12,14 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Mobile top bar (only visible on small screens) -->
+  <header class="topbar">
+    <button id="menuBtn" class="menu-btn" aria-label="Open navigation menu" aria-expanded="false" aria-controls="sidebar" onclick="toggleMenu()">&#9776;</button>
+    <div class="logo">CF</div><strong>Code Fusion</strong>
+  </header>
+  <div class="overlay" onclick="toggleMenu(false)"></div>
   <!-- ===== SIDEBAR NAVIGATION ===== -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="brand">
       <div class="logo">CF</div>
       <div>

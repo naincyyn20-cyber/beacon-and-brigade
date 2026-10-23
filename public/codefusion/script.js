@@ -150,6 +150,27 @@ function setOtherSelect(selectId, otherId, syncFn, fixedOptions, savedValue) {
 function showSection(name) {
   document.querySelectorAll(".section").forEach((s) => s.classList.toggle("active", s.id === name));
   document.querySelectorAll(".nav-link").forEach((b) => b.classList.toggle("active", b.dataset.section === name));
+  toggleMenu(false); // close mobile menu after choosing a page
+  window.scrollTo(0, 0);
+}
+
+// Mobile hamburger menu: open/close the sidebar on small screens
+function toggleMenu(open) {
+  const isOpen = open === undefined ? !document.body.classList.contains("menu-open") : open;
+  document.body.classList.toggle("menu-open", isOpen);
+  const btn = document.getElementById("menuBtn");
+  if (btn) btn.setAttribute("aria-expanded", String(isOpen));
+}
+
+// Copy each table header text into its cells (data-label) so tables
+// can turn into readable cards on mobile screens.
+function labelTableCells() {
+  document.querySelectorAll("table").forEach((table) => {
+    const heads = [...table.querySelectorAll("thead th")].map((th) => th.textContent.trim());
+    table.querySelectorAll("tbody tr").forEach((tr) => {
+      [...tr.children].forEach((td, i) => td.setAttribute("data-label", heads[i] || ""));
+    });
+  });
 }
 
 /* ---------- 5. RENDER EVERYTHING ---------- */
@@ -163,6 +184,7 @@ function renderAll() {
   renderRequests();
   renderOperations();
   renderDropdowns();
+  labelTableCells();
 }
 
 /* ----- Dashboard ----- */
@@ -509,7 +531,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".nav-link").forEach((b) => b.addEventListener("click", () => showSection(b.dataset.section)));
   $("incidentForm").addEventListener("submit", saveIncident);
   $("incidentCancel").addEventListener("click", clearIncidentForm);
-  ["incSearch", "incFilterStatus", "incFilterSeverity"].forEach((id) => $(id).addEventListener("input", renderIncidents));
+  ["incSearch", "incFilterStatus", "incFilterSeverity"].forEach((id) => $(id).addEventListener("input", () => { renderIncidents(); labelTableCells(); }));
   $("zoneForm").addEventListener("submit", saveZone);
   $("zoneCancel").addEventListener("click", clearZoneForm);
   $("teamForm").addEventListener("submit", saveTeam);
@@ -517,7 +539,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("assignForm").addEventListener("submit", assignTeam);
   $("findingForm").addEventListener("submit", saveFinding);
   $("findIncident").addEventListener("change", updateFindingZones);
-  $("findSearch").addEventListener("input", renderFindings);
+  $("findSearch").addEventListener("input", () => { renderFindings(); labelTableCells(); });
   $("incType").addEventListener("change", syncIncidentType);
   $("teamSpecialty").addEventListener("change", syncTeamSpecialty);
   $("requestForm").addEventListener("submit", saveRequest);
