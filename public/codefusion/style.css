@@ -133,3 +133,49 @@ td .btn { margin-right: 4px; }
 @media (max-width: 800px) {
   .grid-2 { grid-template-columns: 1fr; }
 }
+
+/* ===== Mobile & tablet responsive layer (desktop above 900px unchanged) ===== */
+.topbar, .overlay { display: none; }
+html, body { max-width: 100%; overflow-x: hidden; }
+@media (max-width: 900px) {
+  body { display: block; }
+  .topbar { display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 30;
+    background: var(--navy); color: #fff; padding: 10px 14px; }
+  .topbar .logo { width: 34px; height: 34px; }
+  .menu-btn { background: none; border: 1px solid var(--navy-light); color: #fff; font-size: 22px;
+    width: 44px; height: 44px; border-radius: 8px; cursor: pointer; }
+  .sidebar { z-index: 50; transform: translateX(-100%); transition: transform .25s; width: 250px; overflow-y: auto; }
+  body.menu-open .sidebar { transform: translateX(0); }
+  body.menu-open .overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 40; }
+  .nav-link { padding: 13px 12px; font-size: 15px; }
+  .content { margin-left: 0; padding: 18px 14px; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .grid-2, .form-grid, .op-cols { grid-template-columns: 1fr; }
+  input, select, textarea { width: 100%; min-height: 44px; font-size: 16px; }
+  .btn { min-height: 44px; }
+  .btn-sm { min-height: 36px; padding: 6px 12px; }
+  .actions { flex-wrap: wrap; }
+  .toolbar { flex-direction: column; }
+  .op-header { flex-wrap: wrap; gap: 6px; }
+  .toast { left: 14px; right: 14px; bottom: 14px; }
+}
+@media (max-width: 640px) {
+  /* Tables become stacked cards */
+  .card { padding: 14px; }
+  table, tbody, tr, td { display: block; width: 100%; }
+  thead { display: none; }
+  tbody tr { border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; margin-bottom: 10px; }
+  td { display: grid; grid-template-columns: 38% 1fr; gap: 8px; border-bottom: 1px dashed var(--border);
+    padding: 7px 0; word-break: break-word; }
+  td:last-child { border-bottom: none; }
+  td::before { content: attr(data-label); font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); }
+  td[data-label=""]::before { content: none; }
+  td[data-label=""] { display: block; }
+  td.empty { display: block; }
+  td.empty::before { content: none; }
+  td select { min-height: 40px; }
+}
+@media (max-width: 360px) {
+  .stats { grid-template-columns: 1fr; }
+  h2 { font-size: 19px; }
+}

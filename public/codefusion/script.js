@@ -531,7 +531,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".nav-link").forEach((b) => b.addEventListener("click", () => showSection(b.dataset.section)));
   $("incidentForm").addEventListener("submit", saveIncident);
   $("incidentCancel").addEventListener("click", clearIncidentForm);
-  ["incSearch", "incFilterStatus", "incFilterSeverity"].forEach((id) => $(id).addEventListener("input", renderIncidents));
+  ["incSearch", "incFilterStatus", "incFilterSeverity"].forEach((id) => $(id).addEventListener("input", () => { renderIncidents(); labelTableCells(); }));
   $("zoneForm").addEventListener("submit", saveZone);
   $("zoneCancel").addEventListener("click", clearZoneForm);
   $("teamForm").addEventListener("submit", saveTeam);
@@ -539,7 +539,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("assignForm").addEventListener("submit", assignTeam);
   $("findingForm").addEventListener("submit", saveFinding);
   $("findIncident").addEventListener("change", updateFindingZones);
-  $("findSearch").addEventListener("input", renderFindings);
+  $("findSearch").addEventListener("input", () => { renderFindings(); labelTableCells(); });
   $("incType").addEventListener("change", syncIncidentType);
   $("teamSpecialty").addEventListener("change", syncTeamSpecialty);
   $("requestForm").addEventListener("submit", saveRequest);
